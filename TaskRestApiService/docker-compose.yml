@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  task-rest-api-service:
+    build: ./
+    container_name: task-rest-api-service
+    volumes:
+      - .:/usr/local/bin/
+    ports:
+      - "5437:8080"
+    networks:
+      - task-network
+    command: [ "CompileDaemon", "-command=go run main.go" ]
+    depends_on:
+      - kafka
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    container_name: zookeeper
+    restart: always
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+    networks:
+      - task-network
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    container_name: kafka
+    restart: always
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    networks:
+      - task-network
+    depends_on:
+      - zookeeper
+
+networks:
+  task-network:
+    external: true
