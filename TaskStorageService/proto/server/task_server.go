@@ -22,6 +22,9 @@ func (s *TaskServer) CreateTask(ctx context.Context, req *taskpb.CreateTaskReque
 	task := models.Task{
 		Title:       req.Title,
 		Description: req.Description,
+		PerformerId: uint(req.PerformerId),
+		CreatorId:   uint(req.CreatorId),
+		Observers:   models.ObserversFromIDs(req.ObserverIds),
 		Status:      req.Status,
 		CreatedAt:   time.Now(),
 		UpdatedAt:   time.Now(),
@@ -118,6 +121,9 @@ func convertToProto(task models.Task) *taskpb.Task {
 		Title:       task.Title,
 		Description: task.Description,
 		Status:      task.Status,
+		PerformerId: uint64(task.PerformerId),
+		CreatorId:   uint64(task.CreatorId),
+		ObserverIds: task.ObserverIDs(),
 		CreatedAt:   timestamppb.New(task.CreatedAt),
 		UpdatedAt:   timestamppb.New(task.UpdatedAt),
 	}

@@ -2,6 +2,7 @@ package main
 
 import (
 	"TaskStorageService/initializers"
+	"TaskStorageService/models"
 	"TaskStorageService/proto/server"
 	"TaskStorageService/proto/taskpb"
 	"fmt"
@@ -13,15 +14,16 @@ import (
 
 func init() {
 	initializers.LoadEnvVariables()
+	models.ConnectToDB()
 	initializers.ConnectRedis()
+	initializers.InitProducer()
 }
 
 func main() {
-	db := initializers.ConnectToDB()
-	initializers.SyncDatabase(db)
+	initializers.SyncDatabase(models.DB)
 	// Создаем gRPC-сервер
 	grpcServer := grpc.NewServer()
-	taskServer := &server.TaskServer{DB: db}
+	taskServer := &server.TaskServer{DB: models.DB}
 
 	taskpb.RegisterTaskServiceServer(grpcServer, taskServer)
 	port := ":" + os.Getenv("GRPC_PORT")
