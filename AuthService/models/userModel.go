@@ -9,6 +9,7 @@ type User struct {
 	gorm.Model
 	ID       int    `gorm:"primaryKey;autoIncrement"`
 	Email    string `gorm:"unique"`
+	Group    string
 	Password string
 }
 

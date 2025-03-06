@@ -17,9 +17,9 @@ func init() {
 func main() {
 	http.HandleFunc("/login", controllers.Login)
 	http.HandleFunc("/register", controllers.SignUp)
-	http.HandleFunc("/validate", controllers.Validate)
+	http.Handle("/validate", middleware.RequireAuth(http.HandlerFunc(controllers.Validate)))
 
-	http.Handle("/getUserInfo", middleware.RequireAuth(http.HandlerFunc(controllers.UserInfoHandler)))
+	http.Handle("/getUserInfo", middleware.RequireAuthWithGroup("admin", http.HandlerFunc(controllers.UserInfoHandler)))
 
 	fmt.Println("Server started on :8081")
 	http.ListenAndServe(":8081", nil)

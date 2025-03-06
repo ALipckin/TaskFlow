@@ -4,6 +4,7 @@ import (
 	"AuthService/initializers"
 	"AuthService/models"
 	"encoding/json"
+	"fmt"
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
@@ -77,8 +78,9 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"email": user.Email,
-		"exp":   time.Now().Add(time.Hour * 24 * 30).Unix(),
+		"email":   user.Email,
+		"user_id": user.ID,
+		"exp":     time.Now().Add(time.Hour * 24 * 30).Unix(),
 	})
 
 	tokenString, err := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
@@ -86,7 +88,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to create token"})
 		return
 	}
-
+	fmt.Println("creating cooke")
 	http.SetCookie(w, &http.Cookie{
 		Name:     "Authorization",
 		Value:    tokenString,
