@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
+	"os"
 )
 
 func init() {
@@ -14,7 +15,10 @@ func init() {
 }
 
 func main() {
-	defer initializers.KafkaProducer.Close() // Закрываем Kafka-продюсер при завершении работы
+	defer initializers.KafkaProducer.Close()
+
+	mode := os.Getenv("GIN_MODE")
+	gin.SetMode(mode)
 
 	grpcClient := initializers.InitTaskStorageService()
 	taskController := controllers.NewTaskController(grpcClient)
@@ -44,6 +48,30 @@ func main() {
 		tasksGroup.GET("/:id", taskController.TasksShow)
 		tasksGroup.PUT("/:id", taskController.TasksUpdate)
 		tasksGroup.DELETE("/:id", taskController.TasksDelete)
+	}
+
+	authGroup := r.Group("/auth")
+	{
+		authHost := os.Getenv("AUTH_SERVICE_HOST")
+
+		authGroup.POST("/login", func(c *gin.Context) {
+			log.Printf("received request")
+			targetURL := c.DefaultQuery("url", authHost+"/login")
+
+			controllers.ProxyRequest(c, targetURL)
+		})
+		authGroup.POST("/register", func(c *gin.Context) {
+			log.Printf("received request")
+			targetURL := c.DefaultQuery("url", authHost+"/register")
+
+			controllers.ProxyRequest(c, targetURL)
+		})
+		authGroup.GET("/validate", func(c *gin.Context) {
+			log.Printf("received request")
+			targetURL := c.DefaultQuery("url", authHost+"/validate")
+
+			controllers.ProxyRequest(c, targetURL)
+		})
 	}
 
 	r.Run()

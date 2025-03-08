@@ -7,7 +7,7 @@ services:
     volumes:
       - .:/usr/local/bin/
     ports:
-      - "5437:8080"
+      - "5437:8999"
     networks:
       - task-network
     command: [ "CompileDaemon", "-command=go run main.go" ]
