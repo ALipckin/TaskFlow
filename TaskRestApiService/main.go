@@ -3,6 +3,7 @@ package main
 import (
 	"TaskRestApiService/controllers"
 	"TaskRestApiService/initializers"
+	"TaskRestApiService/middleware"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
@@ -30,18 +31,7 @@ func main() {
 		})
 	})
 
-	// Пример использования Kafka
-	r.GET("/send-log", func(c *gin.Context) {
-		err := initializers.SendMessage("logs_topic", "Тестовое сообщение в Kafka")
-		if err != nil {
-			log.Printf("Ошибка Kafka: %v", err)
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка Kafka"})
-			return
-		}
-		c.JSON(http.StatusOK, gin.H{"message": "Лог отправлен в Kafka"})
-	})
-
-	tasksGroup := r.Group("/tasks")
+	tasksGroup := r.Group("/tasks", middleware.RequireAuth)
 	{
 		tasksGroup.POST("", taskController.TasksCreate)
 		tasksGroup.GET("", taskController.TasksIndex)
@@ -52,7 +42,7 @@ func main() {
 
 	authGroup := r.Group("/auth")
 	{
-		authHost := os.Getenv("AUTH_SERVICE_HOST")
+		authHost := os.Getenv("AUTH_SERVICE_URL")
 
 		authGroup.POST("/login", func(c *gin.Context) {
 			log.Printf("received request")
@@ -61,13 +51,11 @@ func main() {
 			controllers.ProxyRequest(c, targetURL)
 		})
 		authGroup.POST("/register", func(c *gin.Context) {
-			log.Printf("received request")
 			targetURL := c.DefaultQuery("url", authHost+"/register")
 
 			controllers.ProxyRequest(c, targetURL)
 		})
 		authGroup.GET("/validate", func(c *gin.Context) {
-			log.Printf("received request")
 			targetURL := c.DefaultQuery("url", authHost+"/validate")
 
 			controllers.ProxyRequest(c, targetURL)
