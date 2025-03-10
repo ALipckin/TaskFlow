@@ -28,7 +28,7 @@ func LogToKafka(level, action, message string, details interface{}) {
 		return
 	}
 
-	err = SendMessage("logs_topic", string(logData))
+	err = SendMessage("service-logs", string(logData))
 	if err != nil {
 		log.Printf("Error sending log to Kafka: %v", err)
 	}
