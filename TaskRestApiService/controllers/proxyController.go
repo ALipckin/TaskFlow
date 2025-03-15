@@ -30,8 +30,6 @@ func ProxyRequest(c *gin.Context, targetURL string) {
 		req.URL.Path = parsedURL.Path
 
 		req.URL.RawQuery = parsedURL.RawQuery
-
-		log.Printf("Forwarding request to: %s", req.URL.String())
 	}
 
 	proxy.ServeHTTP(c.Writer, c.Request)

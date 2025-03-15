@@ -1,6 +1,7 @@
 package main
 
 import (
+	"TaskRestApiService/consumers"
 	"TaskRestApiService/controllers"
 	"TaskRestApiService/initializers"
 	"TaskRestApiService/middleware"
@@ -13,13 +14,16 @@ import (
 func init() {
 	initializers.LoadEnvVariables()
 	initializers.InitProducer()
+	initializers.InitConsumer()
 }
 
 func main() {
 	defer initializers.KafkaProducer.Close()
-
 	mode := os.Getenv("GIN_MODE")
 	gin.SetMode(mode)
+
+	notifyTopic := os.Getenv("KAFKA_NOTIFY_TOPIC")
+	go consumers.ConsumeMessages(notifyTopic)
 
 	grpcClient := initializers.InitTaskStorageService()
 	taskController := controllers.NewTaskController(grpcClient)
@@ -38,6 +42,7 @@ func main() {
 		tasksGroup.GET("/:id", taskController.TasksShow)
 		tasksGroup.PUT("/:id", taskController.TasksUpdate)
 		tasksGroup.DELETE("/:id", taskController.TasksDelete)
+		tasksGroup.GET("/notifications", consumers.HandleWebSocketConnection)
 	}
 
 	authGroup := r.Group("/auth")

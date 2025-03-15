@@ -1,10 +1,13 @@
 package services
 
 import (
+	"NotifyService/initializers"
 	"NotifyService/models"
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/segmentio/kafka-go"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -102,41 +105,70 @@ func getUserData(userId int) map[string]interface{} {
 	return result
 }
 
+type KafkaMessage struct {
+	UserID  int    `json:"user_id"`
+	Email   string `json:"email"`
+	Message string `json:"message"`
+}
+
 func NotifyUsers(event models.TaskEvent) {
-	// Собираем список уникальных получателей
+	// Collect unique user IDs
 	recipients := append(event.ObserversIDs, event.PerformerID, event.CreatorID)
 	log.Printf("📩 Sending notification to users: %v\n", recipients)
 
-	// Множество для хранения уникальных email'ов
-	uniqueEmails := make(map[string]struct{})
-
+	uniqueUserIDs := make(map[int]struct{})
 	for _, userID := range recipients {
-		// Получаем данные пользователя по ID
+		uniqueUserIDs[userID] = struct{}{}
+	}
+
+	log.Printf("📩 Processing %d unique users\n", len(uniqueUserIDs))
+
+	// Initialize Kafka writer (assuming it's configured in initializers)
+	writer := initializers.Writer // Kafka Writer instance initialized elsewhere
+
+	// Prepare the message content for both Kafka and email
+	messageContent := fmt.Sprintf("Event: %s\nTitle: %s\nDescription: %s", event.Event, event.Title, event.Description)
+
+	// Send notification messages to both Kafka and email
+	for userID := range uniqueUserIDs {
 		userData := getUserData(userID)
 
-		// Достаем email
 		email, ok := userData["email"].(string)
 		if !ok || email == "" {
 			log.Printf("⚠️ User %d has no valid email\n", userID)
 			continue
 		}
 
-		// Добавляем email в множество (дубликаты не попадут)
-		uniqueEmails[email] = struct{}{}
-	}
+		kafkaMessage := KafkaMessage{
+			UserID:  userID,
+			Email:   email,
+			Message: messageContent,
+		}
+		kafkaMessageJSON, err := json.Marshal(kafkaMessage)
+		if err != nil {
+			log.Fatalf("Error marshaling Kafka message: %v", err)
+		}
 
-	// Формируем сообщение
-	message := event.Event + " " + event.Title + " " + event.Description
+		kafkaMessageToSend := kafka.Message{
+			Key:   []byte(fmt.Sprintf("user_%d", userID)), // Partition key by user ID
+			Value: kafkaMessageJSON,                       // Message content
+		}
 
-	// Отправляем уведомления на уникальные email'ы
-	for email := range uniqueEmails {
-		err := SendEmail(email, event.Event, message)
+		err = writer.WriteMessages(context.Background(), kafkaMessageToSend)
+		if err != nil {
+			log.Printf("🚨 Failed to send Kafka message for User %d: %v\n", userID, err)
+		} else {
+			log.Printf("✅ Kafka message sent for User %d\n", userID)
+		}
+
+		// Send the email notification
+		err = SendEmail(email, event.Event, messageContent)
 		if err != nil {
 			log.Printf("🚨 Failed to send email to %s: %v\n", email, err)
 		} else {
-			log.Printf("✅ Notification sent to %s\n", email)
+			log.Printf("✅ Email sent to %s\n", email)
 		}
 	}
 
-	log.Printf("📢 Total unique emails notified: %d\n", len(uniqueEmails))
+	log.Printf("📢 Total unique users notified: %d\n", len(uniqueUserIDs))
 }

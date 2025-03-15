@@ -120,5 +120,5 @@ func Validate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	writeJSON(w, http.StatusOK, map[string]interface{}{"message": "Token is valid", "user": claims["email"]})
+	writeJSON(w, http.StatusOK, map[string]interface{}{"message": "Token is valid", "id": claims["user_id"], "email": claims["email"]})
 }
