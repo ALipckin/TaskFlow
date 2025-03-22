@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  task-frontend-vue:
+    build: .
+    container_name: vue-dev
+    volumes:
+      - .:/app
+      - /app/node_modules
+    ports:
+      - "8081:5173"
+    working_dir: /app
+    command: npm run dev -- --host 0.0.0.0
