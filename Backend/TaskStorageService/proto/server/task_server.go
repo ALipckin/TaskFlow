@@ -17,6 +17,24 @@ type TaskServer struct {
 	DB *gorm.DB
 }
 
+func getTaskMessage(eventName string, task models.Task) []byte {
+	message := map[string]interface{}{
+		"event":         eventName,
+		"task_id":       task.ID,
+		"title":         task.Title,
+		"description":   task.Description,
+		"performer_id":  task.PerformerId,
+		"creator_id":    task.CreatorId,
+		"observers_ids": task.ObserverIDs(),
+		"status":        task.Status,
+		"created_at":    task.CreatedAt,
+		"updated_at":    task.UpdatedAt,
+	}
+	messageJSON, _ := json.Marshal(message)
+
+	return messageJSON
+}
+
 // CreateTask создает новую задачу и добавляет в Redis
 func (s *TaskServer) CreateTask(ctx context.Context, req *taskpb.CreateTaskRequest) (*taskpb.TaskResponse, error) {
 	task := models.Task{
@@ -38,6 +56,11 @@ func (s *TaskServer) CreateTask(ctx context.Context, req *taskpb.CreateTaskReque
 	redisKey := fmt.Sprintf("task:%d", task.ID)
 	taskJSON, _ := json.Marshal(task)
 	initializers.RedisClient.Set(ctx, redisKey, taskJSON, 10*time.Minute)
+
+	err := initializers.SendMessageToKafka(getTaskMessage("TaskCreated", task))
+	if err != nil {
+		return nil, err
+	}
 
 	return &taskpb.TaskResponse{Task: convertToProto(task)}, nil
 }
@@ -98,11 +121,21 @@ func (s *TaskServer) UpdateTask(ctx context.Context, req *taskpb.UpdateTaskReque
 	redisKey := fmt.Sprintf("task:%d", task.ID)
 	initializers.RedisClient.Del(ctx, redisKey)
 
+	err := initializers.SendMessageToKafka(getTaskMessage("TaskUpdated", task))
+	if err != nil {
+		return nil, err
+	}
+
 	return &taskpb.TaskResponse{Task: convertToProto(task)}, nil
 }
 
 // DeleteTask удаляет задачу и очищает Redis
 func (s *TaskServer) DeleteTask(ctx context.Context, req *taskpb.DeleteTaskRequest) (*taskpb.DeleteTaskResponse, error) {
+	var task models.Task
+	if err := s.DB.First(&task, req.Id).Error; err != nil {
+		return nil, err
+	}
+
 	if err := s.DB.Delete(&models.Task{}, req.Id).Error; err != nil {
 		return nil, err
 	}
@@ -110,6 +143,11 @@ func (s *TaskServer) DeleteTask(ctx context.Context, req *taskpb.DeleteTaskReque
 	// Удаляем кэш Redis
 	redisKey := fmt.Sprintf("task:%d", req.Id)
 	initializers.RedisClient.Del(ctx, redisKey)
+
+	err := initializers.SendMessageToKafka(getTaskMessage("TaskDeleted", task))
+	if err != nil {
+		return nil, err
+	}
 
 	return &taskpb.DeleteTaskResponse{Message: "Task deleted"}, nil
 }

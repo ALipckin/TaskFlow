@@ -43,3 +43,22 @@ func SendMessage(topic, message string) error {
 	log.Printf("Message successfully sent to Kafka: %s", message)
 	return nil
 }
+
+func SendMessageToKafka(message []byte) error {
+	topic := "task_events"
+	// Формируем Kafka сообщение
+	msg := &sarama.ProducerMessage{
+		Topic: topic,
+		Value: sarama.StringEncoder(message),
+	}
+
+	// Отправляем сообщение в Kafka
+	var err error
+	_, _, err = KafkaProducer.SendMessage(msg)
+	if err != nil {
+		log.Printf("Failed to send Kafka message: %v", err)
+		return err
+	}
+
+	return nil
+}
