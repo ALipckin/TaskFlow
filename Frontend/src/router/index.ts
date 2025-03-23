@@ -5,6 +5,7 @@ import RegisterView from "@/views/RegisterView.vue";
 import LoginView from "@/views/LoginView.vue";
 import HomeView from "@/views/HomeView.vue";
 import DashboardView from "@/views/DashboardView.vue";
+import {useAuthStore} from "@/store/auth.ts";
 
 const routes: Array<RouteRecordRaw> = [
   { path: '/', component: HomeView },
@@ -19,13 +20,18 @@ const router = createRouter({
   routes
 });
 
-router.beforeEach((to, _, next) => {
-  const isAuthenticated = localStorage.getItem('token');
-  if (to.meta.requiresAuth && !isAuthenticated) {
-    next('/login');
+router.beforeEach(async (to, _, next) => {
+  const authStore = useAuthStore();
+
+  if (to.meta.requiresAuth) {
+    try {
+      await authStore.fetchUser();
+      next();
+    } catch {
+      next('/login');
+    }
   } else {
     next();
   }
 });
-
 export default router;

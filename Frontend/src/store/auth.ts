@@ -4,11 +4,9 @@ import axios from 'axios';
 interface User {
   id: number;
   email: string;
-  name: string;
 }
 
-// Получаем API хост из .env
-const API_HOST = import.meta.env.BACKEND_API_HOST || 'http://localhost:5437';
+const API_HOST = import.meta.env.VITE_BACKEND_API_HOST;
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -17,33 +15,31 @@ export const useAuthStore = defineStore('auth', {
   actions: {
     async login(credentials: { email: string; password: string }) {
       try {
-        const { data } = await axios.post<{ user: User }>(
-          `${API_HOST}/auth/login`,
-          credentials,
-          { withCredentials: true } // Куки передаются автоматически
-        );
-        this.user = data.user;
+        await axios.post(`${API_HOST}/auth/login`, credentials, { withCredentials: true });
+        await this.fetchUser();
       } catch (error) {
-        throw new Error('Ошибка авторизации');
+        throw new Error('Auth error');
       }
     },
     async fetchUser() {
       try {
-        const { data } = await axios.get<{ user: User }>(`${API_HOST}/auth/me`, {
+        const response = await axios.get<User & { message?: string }>(`${API_HOST}/auth/validate`, {
           withCredentials: true
         });
-        this.user = data.user;
+        if (response.status !== 200) {
+          throw new Error(`Error: server response ${response.status}`);
+        }
+        const { message, ...userData } = response.data;
+        this.user = userData;
       } catch (error) {
         this.user = null;
+        if (axios.isAxiosError(error)) {
+          console.error("Error validate", error.response?.data || error.message);
+        } else {
+          console.error("Unknown error", error);
+        }
+        throw error;
       }
-    },
-    async logout() {
-      try {
-        await axios.post(`${API_HOST}/auth/logout`, {}, { withCredentials: true });
-      } catch (error) {
-        console.warn('Ошибка при выходе');
-      }
-      this.user = null;
     }
   }
 });

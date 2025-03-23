@@ -36,6 +36,7 @@ const handleLogin = async () => {
 
   try {
     await authStore.login({ email: email.value, password: password.value });
+    console.log("dashboard");
     await router.push('/dashboard');
   } catch (error) {
     errorMessage.value = 'Неверные учетные данные';
