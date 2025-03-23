@@ -40,6 +40,13 @@ export const useAuthStore = defineStore('auth', {
         }
         throw error;
       }
-    }
+    },
+    async register(credentials: { email: string; password: string }) {
+      try {
+        await axios.post(`${API_HOST}/auth/register`, credentials, { withCredentials: true });
+      } catch (error) {
+        throw new Error('Register error');
+      }
+    },
   }
 });
