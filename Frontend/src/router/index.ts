@@ -10,10 +10,10 @@ import { useAuthStore } from "@/store/auth.ts";
 
 const routes: Array<RouteRecordRaw> = [
   { path: '/', component: HomeView },
-  { path: '/login', component: LoginView },
-  { path: '/register', component: RegisterView },
+  { path: '/login', component: LoginView, meta: { onlyGuest: true }},
+  { path: '/register', component: RegisterView, meta: { onlyGuest: true }},
   { path: '/about', component: AboutView },
-  { path: '/dashboard', component: DashboardView, meta: { requiresAuth: true } },
+  { path: '/dashboard', component: DashboardView, meta: { requiresAuth: true }},
   { path: '/task/:id', component: TaskView, props: true },
 ];
 
@@ -26,14 +26,22 @@ router.beforeEach(async (to, _, next) => {
   const authStore = useAuthStore();
 
   if (to.meta.requiresAuth) {
-    try {
-      await authStore.fetchUser();
+      if (await authStore.isAuthenticated()) {
+        next();
+      } else {
+        next('/login');
+      }
+  }
+  else {
+    if (to.meta.onlyGuest) {
+      if (await authStore.isAuthenticated()) {
+        next('/dashboard');
+      } else {
+        next();
+      }
+    } else {
       next();
-    } catch {
-      next('/login');
     }
-  } else {
-    next();
   }
 });
 
