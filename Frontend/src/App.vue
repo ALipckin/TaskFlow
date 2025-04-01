@@ -1,5 +1,13 @@
 <script setup lang="ts">
-import { RouterLink, RouterView } from 'vue-router'
+import { ref, onMounted } from 'vue';
+import { useAuthStore } from '@/store/auth.ts';
+
+const authStore = useAuthStore();
+const isAuth = ref(false);
+
+onMounted(async () => {
+  isAuth.value = await authStore.isAuthenticated();
+});
 </script>
 
 <template>
@@ -8,8 +16,9 @@ import { RouterLink, RouterView } from 'vue-router'
       <nav>
         <RouterLink to="/">Home</RouterLink>
         <RouterLink to="/about">About</RouterLink>
-        <RouterLink to="/login">Login</RouterLink>
-        <RouterLink to="/register">Register</RouterLink>
+        <RouterLink v-if="isAuth" to="/dashboard">Dashboard</RouterLink>
+        <RouterLink v-if="!isAuth" to="/login">Login</RouterLink>
+        <RouterLink v-if="!isAuth" to="/register">Register</RouterLink>
       </nav>
     </div>
   </header>
@@ -65,7 +74,6 @@ nav a:first-of-type {
     text-align: left;
     margin-left: -1rem;
     font-size: 1rem;
-
     padding: 1rem 0;
     margin-top: 1rem;
   }

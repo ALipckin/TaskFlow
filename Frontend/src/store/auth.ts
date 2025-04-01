@@ -48,5 +48,13 @@ export const useAuthStore = defineStore('auth', {
         throw new Error('Register error');
       }
     },
+    async isAuthenticated(){
+      try {
+        await this.fetchUser();
+        return !!this.user;
+      } catch {
+        return false;
+      }
+    }
   }
 });
