@@ -13,12 +13,14 @@
             <v-list v-if="tasks.length">
               <v-list-item-group>
                 <v-list-item v-for="task in tasks" :key="task.id">
-                  <v-list-item-content>
-                    <v-list-item-title>{{ task.title }}</v-list-item-title>
-                    <v-list-item-subtitle>
-                      {{ task.description }}
-                    </v-list-item-subtitle>
-                  </v-list-item-content>
+                  <router-link :to="`/task/${task.id}`">
+                    <v-list-item-content>
+                      <v-list-item-title>{{ task.title }}</v-list-item-title>
+                      <v-list-item-subtitle>
+                        {{ task.description }}
+                      </v-list-item-subtitle>
+                    </v-list-item-content>
+                  </router-link>
                   <v-list-item-action>
                     <v-chip :color="statusColor(task.status)" dark>
                       {{ statusLabel(task.status) }}

@@ -3,9 +3,9 @@ export interface Task {
   title: string;
   description: string;
   status: "pending" | "in_progress" | "completed";
-  performerId: number;
-  creatorId: number;
-  observerIds: number[];
+  performer: User;
+  creator: User;
+  observers: User[];
   createdAt: {
     seconds: number;
     nanos: number;
@@ -14,6 +14,12 @@ export interface Task {
     seconds: number;
     nanos: number;
   };
+}
+
+export interface User {
+  id: bigint;
+  email: string;
+  name: string;
 }
 
 export interface TaskResponse {
