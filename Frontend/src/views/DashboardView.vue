@@ -3,29 +3,35 @@
     <v-row justify="center">
       <v-col cols="12" md="8">
         <v-card>
-          <v-card-title>
-            <v-icon left>mdi-format-list-bulleted</v-icon>
-            Список задач
-          </v-card-title>
-          <v-divider></v-divider>
           <v-card-text>
             <v-progress-linear indeterminate v-if="loading"></v-progress-linear>
             <v-list v-if="tasks.length">
+              <div class="d-flex justify-between">
+                <v-card-title>
+                  Список задач
+                </v-card-title>
+                <v-col cols="auto">
+                  <v-btn variant="outlined" density="comfortable">
+                    <font-awesome-icon :icon="['fas', 'plus']" />
+                  </v-btn>
+                </v-col>
+              </div>
               <v-list-item-group>
                 <v-list-item v-for="task in tasks" :key="task.id">
-                  <router-link :to="`/task/${task.id}`">
-                    <v-list-item-content>
-                      <v-list-item-title>{{ task.title }}</v-list-item-title>
-                      <v-list-item-subtitle>
-                        {{ task.description }}
-                      </v-list-item-subtitle>
-                    </v-list-item-content>
+                  <router-link :to="`/task/${task.id}`" class="task-link">
+                    <TaskCard
+                      :label="statusLabel(task.status)"
+                      :title="task.title"
+                      :text="task.description"
+                    >
+                      <!-- Дополнительный контент (например, статус задачи) -->
+                      <template v-slot:actions>
+                        <v-chip :color="statusColor(task.status)" dark>
+                          {{ statusLabel(task.status) }}
+                        </v-chip>
+                      </template>
+                    </TaskCard>
                   </router-link>
-                  <v-list-item-action>
-                    <v-chip :color="statusColor(task.status)" dark>
-                      {{ statusLabel(task.status) }}
-                    </v-chip>
-                  </v-list-item-action>
                 </v-list-item>
               </v-list-item-group>
             </v-list>
@@ -38,11 +44,14 @@
 </template>
 
 <script lang="ts">
-import {defineComponent, onMounted, ref} from "vue";
-import {getTasksData} from '@/api/taskApi'
+import { defineComponent, onMounted, ref } from "vue";
+import { getTasksData } from '@/api/taskApi';
 import type { Task } from "@/types/task.ts";
+import TaskCard from "@/components/cards/TaskCard.vue";
+
 
 export default defineComponent({
+  components: {TaskCard},
   setup() {
     const loading = ref<boolean>(false);
     const tasks = ref<Task[]>([]); // Делаем tasks реактивным массивом
@@ -89,5 +98,4 @@ export default defineComponent({
   },
 });
 </script>
-
 

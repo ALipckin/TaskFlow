@@ -14,10 +14,9 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 // Импортируйте нужные иконки
-import { faUser, faCoffee } from '@fortawesome/free-solid-svg-icons'
-import { faTwitter } from '@fortawesome/free-brands-svg-icons'
+import { faUser, faPlus } from '@fortawesome/free-solid-svg-icons'
 
-library.add(faUser, faCoffee, faTwitter)
+library.add(faUser, faPlus)
 
 const vuetify = createVuetify({
   components,
