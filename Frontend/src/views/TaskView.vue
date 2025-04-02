@@ -27,9 +27,7 @@
                 <v-list-item>
                   <v-list-item-content>
                     <v-list-item-title>Статус:</v-list-item-title>
-                    <v-chip v-if="task" :color="statusColor(task.status)" dark>
-                      {{ statusLabel(task.status) }}
-                    </v-chip>
+                    <Status :status="task.status"/>
                   </v-list-item-content>
                 </v-list-item>
                 <v-list-item>
@@ -68,6 +66,7 @@ import { onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
 import { getTaskData } from "@/api/taskApi";
 import type { Task } from "@/types/task.ts";
+import Status from "@/components/Status.vue";
 
 const route = useRoute();
 const loading = ref<boolean>(true);

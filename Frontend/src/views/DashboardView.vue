@@ -20,15 +20,11 @@
                 <v-list-item v-for="task in tasks" :key="task.id">
                   <router-link :to="`/task/${task.id}`" class="task-link">
                     <TaskCard
-                      :label="statusLabel(task.status)"
                       :title="task.title"
                       :text="task.description"
                     >
-                      <!-- Дополнительный контент (например, статус задачи) -->
                       <template v-slot:actions>
-                        <v-chip :color="statusColor(task.status)" dark>
-                          {{ statusLabel(task.status) }}
-                        </v-chip>
+                        <Status :status="task.status"/>
                       </template>
                     </TaskCard>
                   </router-link>
@@ -48,10 +44,11 @@ import { defineComponent, onMounted, ref } from "vue";
 import { getTasksData } from '@/api/taskApi';
 import type { Task } from "@/types/task.ts";
 import TaskCard from "@/components/cards/TaskCard.vue";
+import Status from "@/components/Status.vue";
 
 
 export default defineComponent({
-  components: {TaskCard},
+  components: {Status, TaskCard},
   setup() {
     const loading = ref<boolean>(false);
     const tasks = ref<Task[]>([]); // Делаем tasks реактивным массивом
@@ -69,31 +66,11 @@ export default defineComponent({
       }
     };
 
-    const statusLabel = (status: Task["status"]) => {
-      const labels: Record<Task["status"], string> = {
-        pending: "Ожидание",
-        in_progress: "В процессе",
-        completed: "Завершено",
-      };
-      return labels[status] || "Неизвестно";
-    };
-
-    const statusColor = (status: Task["status"]) => {
-      const colors: Record<Task["status"], string> = {
-        pending: "orange",
-        in_progress: "blue",
-        completed: "green",
-      };
-      return colors[status] || "gray";
-    };
-
     onMounted(fetchTasks);
 
     return {
       tasks,
       loading,
-      statusLabel,
-      statusColor,
     };
   },
 });
