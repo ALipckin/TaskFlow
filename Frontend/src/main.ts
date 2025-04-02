@@ -10,6 +10,15 @@ import { createVuetify } from 'vuetify'
 import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
 
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+
+// Импортируйте нужные иконки
+import { faUser, faCoffee } from '@fortawesome/free-solid-svg-icons'
+import { faTwitter } from '@fortawesome/free-brands-svg-icons'
+
+library.add(faUser, faCoffee, faTwitter)
+
 const vuetify = createVuetify({
   components,
   directives,
@@ -17,7 +26,7 @@ const vuetify = createVuetify({
 
 const app = createApp(App)
 const pinia = createPinia();
-
+app.component('font-awesome-icon', FontAwesomeIcon)
 app.use(vuetify)
 app.use(pinia);
 app.use(router)
