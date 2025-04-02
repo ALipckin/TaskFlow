@@ -55,6 +55,15 @@ export const useAuthStore = defineStore('auth', {
       } catch {
         return false;
       }
+    },
+    async logout() {
+      try {
+        await axios.post(`${API_HOST}/auth/logout`, {}, {withCredentials: true});
+        this.user = null;
+      } catch (error) {
+        console.error("Logout error", error);
+        throw error;
+      }
     }
   }
 });
