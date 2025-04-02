@@ -1,8 +1,10 @@
+export type TaskStatus = "pending" | "in_progress" | "completed";
+
 export interface Task {
   id: number;
   title: string;
   description: string;
-  status: "pending" | "in_progress" | "completed";
+  status: TaskStatus;
   performer: User;
   creator: User;
   observers: User[];
@@ -14,6 +16,15 @@ export interface Task {
     seconds: number;
     nanos: number;
   };
+}
+
+export interface NewTask {
+  title: string;
+  description: string;
+  status: TaskStatus;
+  performer: bigint;
+  creator: bigint;
+  observers: bigint[];
 }
 
 export interface User {

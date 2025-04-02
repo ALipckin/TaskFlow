@@ -5,7 +5,8 @@ import RegisterView from "@/views/RegisterView.vue";
 import LoginView from "@/views/LoginView.vue";
 import HomeView from "@/views/HomeView.vue";
 import DashboardView from "@/views/DashboardView.vue";
-import TaskView from "@/views/TaskView.vue"; // Импортируем компонент задачи
+import TaskView from "@/views/TaskView.vue";
+import CreateTaskView from "@/views/CreateTaskView.vue";
 import { useAuthStore } from "@/store/auth.ts";
 
 const routes: Array<RouteRecordRaw> = [
@@ -14,7 +15,8 @@ const routes: Array<RouteRecordRaw> = [
   { path: '/register', component: RegisterView, meta: { onlyGuest: true }},
   { path: '/about', component: AboutView },
   { path: '/dashboard', component: DashboardView, meta: { requiresAuth: true }},
-  { path: '/task/:id', component: TaskView, props: true },
+  { path: '/task/:id', component: TaskView, props: true, meta: { requiresAuth: true } },
+  { path: '/task/create', component: CreateTaskView, meta: { requiresAuth: true }},
 ];
 
 const router = createRouter({

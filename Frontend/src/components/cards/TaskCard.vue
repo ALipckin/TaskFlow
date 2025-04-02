@@ -14,8 +14,6 @@
       </v-card-item>
     </v-card>
 </template>
-
-
 <script lang="ts">
 export default {
   props: {

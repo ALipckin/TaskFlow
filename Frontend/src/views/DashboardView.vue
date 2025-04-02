@@ -11,7 +11,7 @@
                   Список задач
                 </v-card-title>
                 <v-col cols="auto">
-                  <v-btn variant="outlined" density="comfortable">
+                  <v-btn href="/task/create" variant="outlined" density="comfortable">
                     <font-awesome-icon :icon="['fas', 'plus']" />
                   </v-btn>
                 </v-col>
