@@ -87,26 +87,6 @@ const fetchTask = async () => {
     loading.value = false;
   }
 };
-
-const statusLabel = (status: Task["status"]) => {
-  const labels: Record<Task["status"], string> = {
-    pending: "Ожидание",
-    in_progress: "В процессе",
-    completed: "Завершено",
-  };
-  return labels[status] || "Неизвестно";
-};
-
-const statusColor = (status: Task["status"]) => {
-  const colors: Record<Task["status"], string> = {
-    pending: "orange",
-    in_progress: "blue",
-    completed: "green",
-  };
-  return colors[status] || "gray";
-};
-
-// Loading task on component mount
 onMounted(fetchTask);
 </script>
 
