@@ -90,8 +90,4 @@ export default defineComponent({
 });
 </script>
 
-<style scoped>
-.v-list-item {
-  border-bottom: 1px solid #ddd;
-}
-</style>
+
