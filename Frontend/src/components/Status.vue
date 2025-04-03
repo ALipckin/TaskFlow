@@ -1,10 +1,23 @@
 <template>
-    <v-chip v-if="status" :color="statusColor(status)" dark>
-      {{ statusLabel(status) }}
-    </v-chip>
+  <v-chip v-if="status" :color="statusData[status].color" dark>
+    {{ statusData[status].label }}
+  </v-chip>
 </template>
 
 <script lang="ts">
+const statusData = {
+  pending: { label: "Ожидание", color: "orange" },
+  in_progress: { label: "В процессе", color: "blue" },
+  completed: { label: "Завершено", color: "green" },
+};
+
+export const getStatuses = () => {
+  return Object.keys(statusData).map(key => ({
+    value: key,
+    ...statusData[key],
+  }));
+};
+
 export default {
   props: {
     status: {
@@ -12,23 +25,10 @@ export default {
       required: true,
     },
   },
-  methods: {
-    statusLabel(status) {
-      const labels = {
-        pending: "Ожидание",
-        in_progress: "В процессе",
-        completed: "Завершено",
-      };
-      return labels[status] || "Неизвестно";
-    },
-    statusColor(status) {
-      const colors = {
-        pending: "orange",
-        in_progress: "blue",
-        completed: "green",
-      };
-      return colors[status] || "gray";
-    },
+  data() {
+    return {
+      statusData,
+    };
   },
 };
 </script>
