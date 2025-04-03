@@ -22,15 +22,9 @@ export interface NewTask {
   title: string;
   description: string;
   status: TaskStatus;
-  performer: bigint;
-  creator: bigint;
-  observers: bigint[];
-}
-
-export interface User {
-  id: bigint;
-  email: string;
-  name: string;
+  performer_id: bigint;
+  creator_id: bigint;
+  observer_ids: bigint[];
 }
 
 export interface TaskResponse {

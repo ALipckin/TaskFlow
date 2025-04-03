@@ -6,6 +6,7 @@ export const API_URLS = {
   LOGIN: `${API_HOST}/auth/login`,
   REGISTER: `${API_HOST}/auth/register`,
   VALIDATE: `${API_HOST}/auth/validate`,
+  USER: `${API_HOST}/auth/users`,
 
 } as const;
 

@@ -23,30 +23,13 @@
                 v-model="newTask.status"
                 :items="statusOptions"
                 label="Статус"
-                item-title="text"
+                item-title="label"
                 item-value="value"
                 required
               ></v-select>
-              <v-text-field
-                v-model="newTask.performer"
-                label="Исполнитель (ID)"
-                type="number"
-                required
-              ></v-text-field>
-              <v-text-field
-                v-model="newTask.creator"
-                label="Создатель (ID)"
-                type="number"
-                required
-              ></v-text-field>
-              <v-combobox
-                v-model="newTask.observers"
-                label="Наблюдатели (ID)"
-                multiple
-                chips
-                hint="Введите ID наблюдателей через запятую"
-                :return-object="false"
-              ></v-combobox>
+              <UserSelect v-model="newTask.performer_id" label="Исполнитель" />
+              <UserSelect v-model="newTask.creator_id" label="Создатель" />
+              <UserMultiSelect v-model="newTask.observer_ids" label="Наблюдатели"></UserMultiSelect>
               <v-btn type="submit" color="primary">Создать задачу</v-btn>
             </v-form>
           </v-card-text>
@@ -60,34 +43,28 @@
 import { ref } from "vue";
 import { createTask } from "@/api/taskApi";
 import type { NewTask } from "@/types/task";
+import UserSelect from "@/components/UserSelect.vue";
+import UserMultiSelect from "@/components/UserMultiSelect.vue";
+import { getStatuses } from "@/components/Status.vue"; // Импортируем функцию
+
+const statusOptions = getStatuses(); // Получаем статусы
 
 const newTask = ref<NewTask>({
   title: "",
   description: "",
   status: "pending",
-  performer: BigInt(0),
-  creator: BigInt(0),
-  observers: [],
+  performer_id: 1,
+  creator_id: 1,
+  observer_ids: [],
 });
-
-const statusOptions = [
-  { text: "Ожидание", value: "pending" },
-  { text: "В процессе", value: "in_progress" },
-  { text: "Завершено", value: "completed" },
-];
 
 const submitTask = async () => {
   try {
     const taskData = {
       ...newTask.value,
-      performer: newTask.value.performer.toString(), // Convert BigInt to string
-      creator: newTask.value.creator.toString(), // Convert BigInt to string
-      observers: newTask.value.observers
-        .toString()
-        .split(",")
-        .map((id) => id.trim())
-        .filter((id) => id)
-        .map((id) => id.toString()), // Convert each BigInt to string
+      performer: newTask.value.performer_id,
+      creator: newTask.value.creator_id,
+      observers: newTask.value.observer_ids,
     };
 
     const createdTask = await createTask(taskData);
@@ -97,9 +74,3 @@ const submitTask = async () => {
   }
 };
 </script>
-
-<style scoped>
-.v-list-item {
-  border-bottom: 1px solid #ddd;
-}
-</style>
