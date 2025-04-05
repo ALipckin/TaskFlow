@@ -5,9 +5,9 @@ export interface Task {
   title: string;
   description: string;
   status: TaskStatus;
-  performer: User;
-  creator: User;
-  observers: User[];
+  performer_id: bigint;
+  creator_id: bigint;
+  observer_ids: bigint[];
   createdAt: {
     seconds: number;
     nanos: number;

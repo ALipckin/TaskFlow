@@ -5,55 +5,50 @@
     item-title="displayName"
     item-value="id"
     :label="label"
-    :loading="loading"
     clearable
     return-object
   ></v-autocomplete>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted, watch } from "vue";
-import { getUsers } from "@/api/authApi.ts";
+import { defineComponent, ref, watch } from "vue";
+import type { PropType } from "vue";
+
+interface User {
+  id: bigint;
+  name: string;
+  email: string;
+  displayName: string;
+}
 
 export default defineComponent({
   props: {
     modelValue: {
-      type: [String, Number, BigInt, null],
+      type: [String, Number, BigInt, null] as PropType<string | number | bigint | null>,
       required: false,
     },
     label: {
       type: String,
       required: true,
     },
+    users: {
+      type: Array as PropType<User[]>,
+      required: true,
+    },
   },
   emits: ["update:modelValue"],
   setup(props, { emit }) {
-    const users = ref<{ id: bigint; name: string; email: string; displayName: string }[]>([]);
-    const selectedUser = ref(props.modelValue);
-    const loading = ref(false);
+    const selectedUser = ref<User | null>(null);
 
-    const fetchUsers = async () => {
-      loading.value = true;
-      try {
-        const response = await getUsers();
-        users.value = response.data.map((user: { id: bigint; name: string; email: string }) => ({
-          ...user,
-          displayName: `${user.name} (${user.email})`,
-        }));
-      } catch (error) {
-        console.error("Ошибка загрузки пользователей", error);
-      } finally {
-        loading.value = false;
-      }
-    };
-
-    onMounted(fetchUsers);
+    if (props.modelValue !== null) {
+      selectedUser.value = props.users.find(user => user.id === props.modelValue) || null;
+    }
 
     watch(selectedUser, (newValue) => {
       emit("update:modelValue", newValue?.id || null);
     });
 
-    return { users, selectedUser, loading };
+    return { selectedUser };
   },
 });
 </script>

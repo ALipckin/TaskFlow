@@ -27,9 +27,9 @@
                 item-value="value"
                 required
               ></v-select>
-              <UserSelect v-model="newTask.performer_id" label="Исполнитель" />
-              <UserSelect v-model="newTask.creator_id" label="Создатель" />
-              <UserMultiSelect v-model="newTask.observer_ids" label="Наблюдатели"></UserMultiSelect>
+              <UserSelect v-model="newTask.performer_id" :users="users" label="Исполнитель"/>
+              <UserSelect v-model="newTask.creator_id" :users="users" label="Создатель"/>
+              <UserMultiSelect v-model="newTask.observer_ids" :users="users" label="Наблюдатели"/>
               <v-btn type="submit" color="primary">Создать задачу</v-btn>
             </v-form>
           </v-card-text>
@@ -40,27 +40,29 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import {onMounted, ref} from "vue";
 import { createTask } from "@/api/taskApi";
-import type { NewTask } from "@/types/task";
+import type {NewTask, Task} from "@/types/task";
 import UserSelect from "@/components/UserSelect.vue";
 import UserMultiSelect from "@/components/UserMultiSelect.vue";
-import { getStatuses } from "@/components/Status.vue"; // Импортируем функцию
+import { getStatuses } from "@/components/Status.vue";
+import {getUsers, type SelectUser} from "@/api/authApi.ts"; // Импортируем функцию
 
-const statusOptions = getStatuses(); // Получаем статусы
+const users = ref<SelectUser[]>([]);
+const statusOptions = getStatuses();
 
 const newTask = ref<NewTask>({
-  title: "",
-  description: "",
-  status: "pending",
-  performer_id: 1,
-  creator_id: 1,
+  title: '',
+  description: '',
+  status: 'pending',
+  performer_id: BigInt(0),
+  creator_id: BigInt(0),
   observer_ids: [],
 });
 
 const submitTask = async () => {
   try {
-    const taskData = {
+  const taskData = {
       ...newTask.value,
       performer: newTask.value.performer_id,
       creator: newTask.value.creator_id,
@@ -73,4 +75,21 @@ const submitTask = async () => {
     console.error("Ошибка при создании задачи:", error);
   }
 };
+
+const fetchUsers = async () => {
+  try {
+    const response = await getUsers();
+    users.value = response.data.map((user: { id: bigint; name: string; email: string }) => ({
+      ...user,
+      displayName: `${user.name} (${user.email})`,
+    }));
+  } catch (error) {
+    console.error("Ошибка загрузки пользователей", error);
+  }
+};
+
+onMounted(async () => {
+  await fetchUsers();
+});
 </script>
+

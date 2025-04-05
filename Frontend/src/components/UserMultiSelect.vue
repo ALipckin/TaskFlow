@@ -5,7 +5,6 @@
     item-title="displayName"
     item-value="id"
     :label="label"
-    :loading="loading"
     multiple
     chips
     clearable
@@ -13,13 +12,20 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted, watch } from "vue";
-import { getUsers } from "@/api/authApi.ts";
+import { defineComponent, ref, watch } from "vue";
+import type { PropType } from "vue";
+
+interface User {
+  id: bigint;
+  name: string;
+  email: string;
+  displayName: string;
+}
 
 export default defineComponent({
   props: {
     modelValue: {
-      type: Array,
+      type: Array as PropType<bigint[]>,
       required: false,
       default: () => [],
     },
@@ -27,35 +33,20 @@ export default defineComponent({
       type: String,
       required: true,
     },
+    users: {
+      type: Array as PropType<User[]>,
+      required: true,
+    },
   },
   emits: ["update:modelValue"],
   setup(props, { emit }) {
-    const users = ref<{ id: bigint; name: string; email: string; displayName: string }[]>([]);
-    const selectedUserIds = ref(props.modelValue.map(user => user.id)); // Инициализация с id
-    const loading = ref(false);
-
-    const fetchUsers = async () => {
-      loading.value = true;
-      try {
-        const response = await getUsers();
-        users.value = response.data.map((user: { id: bigint; name: string; email: string }) => ({
-          ...user,
-          displayName: `${user.name} (${user.email})`,
-        }));
-      } catch (error) {
-        console.error("Ошибка загрузки пользователей", error);
-      } finally {
-        loading.value = false;
-      }
-    };
-
-    onMounted(fetchUsers);
+    const selectedUserIds = ref<bigint[]>(props.modelValue);
 
     watch(selectedUserIds, (newValue) => {
       emit("update:modelValue", newValue);
     });
 
-    return { users, selectedUserIds, loading };
+    return { selectedUserIds };
   },
 });
 </script>

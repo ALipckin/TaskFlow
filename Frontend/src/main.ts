@@ -13,8 +13,7 @@ import * as directives from 'vuetify/directives'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
-// Импортируйте нужные иконки
-import { faUser, faPlus } from '@fortawesome/free-solid-svg-icons'
+import { faUser, faPlus} from '@fortawesome/free-solid-svg-icons'
 
 library.add(faUser, faPlus)
 
