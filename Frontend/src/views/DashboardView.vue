@@ -18,11 +18,10 @@
               </div>
               <v-list-item-group>
                 <v-list-item v-for="task in tasks" :key="task.id">
-                  <router-link :to="`/task/${task.id}`" class="task-link">
+                  <router-link :to="`/task/edit/${task.id}`" class="task-link p-0">
                     <TaskCard
                       :title="task.title"
-                      :text="task.description"
-                    >
+                      :text="task.description">
                       <template v-slot:actions>
                         <Status :status="task.status"/>
                       </template>
@@ -75,4 +74,8 @@ export default defineComponent({
   },
 });
 </script>
-
+<style>
+.task-link{
+    padding: 0 !important;
+}
+</style>
