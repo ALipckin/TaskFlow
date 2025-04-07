@@ -1,12 +1,11 @@
 import { defineStore } from 'pinia';
 import axios from 'axios';
+import {API_URLS} from "@/api/apiUrls.ts";
 
 interface User {
   id: number;
   email: string;
 }
-
-const API_HOST = import.meta.env.VITE_BACKEND_API_HOST;
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -15,7 +14,7 @@ export const useAuthStore = defineStore('auth', {
   actions: {
     async login(credentials: { email: string; password: string }) {
       try {
-        await axios.post(`${API_HOST}/auth/login`, credentials, { withCredentials: true });
+        await axios.post(API_URLS.LOGIN, credentials, { withCredentials: true });
         await this.fetchUser();
       } catch (error) {
         throw new Error('Auth error');
@@ -23,7 +22,7 @@ export const useAuthStore = defineStore('auth', {
     },
     async fetchUser() {
       try {
-        const response = await axios.get<User & { message?: string }>(`${API_HOST}/auth/validate`, {
+        const response = await axios.get<User & { message?: string }>(API_URLS.VALIDATE, {
           withCredentials: true
         });
         if (response.status !== 200) {
@@ -43,7 +42,7 @@ export const useAuthStore = defineStore('auth', {
     },
     async register(credentials: { email: string; password: string }) {
       try {
-        await axios.post(`${API_HOST}/auth/register`, credentials, { withCredentials: true });
+        await axios.post(API_URLS.REGISTER, credentials, { withCredentials: true });
       } catch (error) {
         throw new Error('Register error');
       }
@@ -58,7 +57,7 @@ export const useAuthStore = defineStore('auth', {
     },
     async logout() {
       try {
-        await axios.post(`${API_HOST}/auth/logout`, {}, {withCredentials: true});
+        await axios.post(API_URLS.LOGOUT, {}, {withCredentials: true});
         this.user = null;
       } catch (error) {
         console.error("Logout error", error);

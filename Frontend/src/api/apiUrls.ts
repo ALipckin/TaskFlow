@@ -1,12 +1,16 @@
+const API_PROTOCOL = import.meta.env.VITE_BACKEND_API_PROTOCOL;
 const API_HOST = import.meta.env.VITE_BACKEND_API_HOST;
+const API_URL = API_PROTOCOL + API_HOST;
 
 export const API_URLS = {
-  BASE_URL: API_HOST,
-  TASK: `${API_HOST}/tasks`,
-  LOGIN: `${API_HOST}/auth/login`,
-  REGISTER: `${API_HOST}/auth/register`,
-  VALIDATE: `${API_HOST}/auth/validate`,
-  USER: `${API_HOST}/auth/users`,
+  BASE_URL: API_URL,
+  TASK: `${API_URL}/tasks`,
+  TASK_NOTIFICATIONS: `ws://${API_HOST}/tasks/notifications`,
+  LOGIN: `${API_URL}/auth/login`,
+  REGISTER: `${API_URL}/auth/register`,
+  VALIDATE: `${API_URL}/auth/validate`,
+  LOGOUT: `${API_URL}/auth/logout`,
+  USER: `${API_URL}/auth/users`,
 
 } as const;
 

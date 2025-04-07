@@ -1,4 +1,5 @@
 <template>
+  <Notification/>
   <header>
     <div class="wrapper">
       <nav>
@@ -16,7 +17,6 @@
       </nav>
     </div>
   </header>
-
   <main>
     <RouterView />
   </main>
@@ -25,13 +25,25 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useAuthStore } from '@/store/auth.ts';
-
 const authStore = useAuthStore();
 const isAuth = ref(false);
 const isMenuOpen = ref(false);
+import {API_URLS} from "@/api/apiUrls.ts";
+import { initSocket, onMessage } from '@/services/socket'
+import Notification from "@/components/Notification.vue";
 
 onMounted(async () => {
   isAuth.value = await authStore.isAuthenticated();
+  initSocket(API_URLS.TASK_NOTIFICATIONS)
+
+  onMessage((data) => {
+    // можно кастомизировать, например:
+    if (data.type === 'alert') {
+      notify(data.message, 'warning')
+    } else {
+      notify(data.message, 'info')
+    }
+  })
 });
 
 const logout = async () => {
