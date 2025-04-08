@@ -8,6 +8,7 @@ import DashboardView from "@/views/DashboardView.vue";
 import TaskEdit from "@/views/TaskEditView.vue";
 import CreateTaskView from "@/views/CreateTaskView.vue";
 import { useAuthStore } from "@/store/auth.ts";
+import MyTasksView from "@/views/MyTasksView.vue";
 
 const routes: Array<RouteRecordRaw> = [
   { path: '/', component: HomeView },
@@ -15,6 +16,7 @@ const routes: Array<RouteRecordRaw> = [
   { path: '/register', component: RegisterView, meta: { onlyGuest: true }},
   { path: '/about', component: AboutView },
   { path: '/dashboard', component: DashboardView, meta: { requiresAuth: true }},
+  { path: '/tasks/my/', component: MyTasksView, meta: { requiresAuth: true }},
   { path: '/task/edit/:id', component: TaskEdit, props: true, meta: { requiresAuth: true } },
   { path: '/task/create', component: CreateTaskView, meta: { requiresAuth: true }},
 ];

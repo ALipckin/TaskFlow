@@ -5,7 +5,8 @@
       <nav>
         <RouterLink to="/">Home</RouterLink>
         <RouterLink to="/about">About</RouterLink>
-        <RouterLink v-if="isAuth" to="/dashboard">Главная</RouterLink>
+        <RouterLink v-if="isAuth" to="/dashboard">Задачи</RouterLink>
+        <RouterLink v-if="isAuth" to="/tasks/my">Мои задачи</RouterLink>
         <RouterLink v-if="!isAuth" to="/login">Логин</RouterLink>
         <RouterLink v-if="!isAuth" to="/register">Регистрация</RouterLink>
         <div class="user-menu" v-if="isAuth">

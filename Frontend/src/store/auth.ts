@@ -3,7 +3,7 @@ import axios from 'axios';
 import {API_URLS} from "@/api/apiUrls.ts";
 
 interface User {
-  id: number;
+  id: bigint;
   email: string;
 }
 

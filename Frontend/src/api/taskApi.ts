@@ -3,13 +3,31 @@ import { API_URLS } from './apiUrls';
 import type {NewTask, Task} from '@/types/task';
 import type { ApiResponse } from '@/types/common';
 
-export const getTasksData = async (): Promise<Task[]> => {
-  const response = await axios.get<ApiResponse<Task[]>>(API_URLS.TASK, { withCredentials: true });
+export const getTasksData = async (
+  title?: string|null,
+  performerId?: bigint|null,
+  creatorId?: bigint|null
+):
+  Promise<Task[]> => {
+
+  const params: Record<string, any> = {};
+
+  if (title?.length) params.title = title;
+  if (performerId) params.performer_id = performerId;
+  if (creatorId) params.creator_id = creatorId;
+
+  const response =
+    await axios.get<ApiResponse<Task[]>>(API_URLS.TASK,
+    { params, withCredentials: true});
   return response.data.data;
 };
 
 export const getTaskData = async (id: bigint): Promise<Task> => {
-  const response = await axios.get<ApiResponse<Task>>(`${API_URLS.TASK}/${id}`, { withCredentials: true });
+  const response =
+    await axios.get<ApiResponse<Task>>(
+      `${API_URLS.TASK}/${id}`,
+      { withCredentials: true }
+    );
   return response.data.data;
 };
 
