@@ -13,7 +13,7 @@
   </v-snackbar>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { useNotifier } from '@/composables/useNotifier'
 
 const { snackbar, text, color } = useNotifier()
