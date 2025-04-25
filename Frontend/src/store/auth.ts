@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
-import axios from 'axios';
-import {API_URLS} from "@/api/apiUrls.ts";
+import axios from '@/api/axiosInstance';
+import { API_URLS } from "@/api/apiUrls.ts";
+import type { AxiosError } from 'axios';
 
 interface User {
   id: bigint;
@@ -14,40 +15,45 @@ export const useAuthStore = defineStore('auth', {
   actions: {
     async login(credentials: { email: string; password: string }) {
       try {
-        await axios.post(API_URLS.LOGIN, credentials, { withCredentials: true });
+        const response = await axios.post(API_URLS.LOGIN, credentials);
+        localStorage.setItem('token', response.data.token);
         await this.fetchUser();
       } catch (error) {
+        console.error("Login error", error);
         throw new Error('Auth error');
       }
     },
+
     async fetchUser() {
       try {
-        const response = await axios.get<User & { message?: string }>(API_URLS.VALIDATE, {
-          withCredentials: true
-        });
-        if (response.status !== 200) {
-          throw new Error(`Error: server response ${response.status}`);
-        }
+        const response = await axios.get<User & { message?: string }>(API_URLS.VALIDATE);
+        if (response.status !== 200) throw new Error(`Error: server response ${response.status}`);
         const { message, ...userData } = response.data;
         this.user = userData;
-      } catch (error) {
+      } catch (error: unknown) {
         this.user = null;
-        if (axios.isAxiosError(error)) {
-          console.error("Error validate", error.response?.data || error.message);
+
+        const axiosError = error as AxiosError;
+        if (axiosError?.isAxiosError) {
+          console.error("Validation error", axiosError.response?.data || axiosError.message);
         } else {
           console.error("Unknown error", error);
         }
+
         throw error;
       }
     },
+
     async register(credentials: { email: string; password: string, name: string }) {
       try {
-        await axios.post(API_URLS.REGISTER, credentials, { withCredentials: true });
+        await axios.post(API_URLS.REGISTER, credentials);
       } catch (error) {
+        console.error("Register error", error);
         throw new Error('Register error');
       }
     },
-    async isAuthenticated(){
+
+    async isAuthenticated() {
       try {
         await this.fetchUser();
         return !!this.user;
@@ -55,14 +61,10 @@ export const useAuthStore = defineStore('auth', {
         return false;
       }
     },
+
     async logout() {
-      try {
-        await axios.post(API_URLS.LOGOUT, {}, {withCredentials: true});
-        this.user = null;
-      } catch (error) {
-        console.error("Logout error", error);
-        throw error;
-      }
+      localStorage.removeItem('token');
+      this.user = null;
     }
   }
 });

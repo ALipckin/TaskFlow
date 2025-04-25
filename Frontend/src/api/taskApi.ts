@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from '@/api/axiosInstance.ts';
 import { API_URLS } from './apiUrls';
 import type {NewTask, Task} from '@/types/task';
 import type { ApiResponse } from '@/types/common';

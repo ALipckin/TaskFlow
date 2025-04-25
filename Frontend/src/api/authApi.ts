@@ -1,6 +1,5 @@
-import axios from 'axios';
+import axios from '@/api/axiosInstance.ts';
 import { API_URLS } from './apiUrls';
-import type {TaskStatus} from "@/types/task.ts";
 
 interface GetUsersParams {
   ids?: string[];
