@@ -24,7 +24,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { useAuthStore } from '@/store/auth.ts';
 const authStore = useAuthStore();
 const isAuth = ref(false);
@@ -38,7 +38,6 @@ onMounted(async () => {
   initSocket(API_URLS.TASK_NOTIFICATIONS)
 
   onMessage((data) => {
-    // можно кастомизировать, например:
     if (data.type === 'alert') {
       notify(data.message, 'warning')
     } else {
@@ -47,11 +46,17 @@ onMounted(async () => {
   })
 });
 
+watch(
+  () => authStore.user,
+  (newUser) => {
+    isAuth.value = !!newUser;
+  }
+);
+
 const logout = async () => {
   try {
     await authStore.logout();
     isAuth.value = false;
-    // Перенаправление на главную страницу после выхода
     window.location.href = '/';
   } catch (error) {
     console.error("Ошибка при выходе", error);
