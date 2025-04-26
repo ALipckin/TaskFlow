@@ -16,20 +16,25 @@ export const useAuthStore = defineStore('auth', {
     async login(credentials: { email: string; password: string }) {
       try {
         const response = await axios.post(API_URLS.LOGIN, credentials);
-        localStorage.setItem('token', response.data.token);
-        await this.fetchUser();
+        const { token, ...userData } = response.data;
+        this.user = userData;
+        localStorage.setItem('token', token);
       } catch (error) {
         console.error("Login error", error);
         throw new Error('Auth error');
       }
     },
-
     async fetchUser() {
       try {
-        const response = await axios.get<User & { message?: string }>(API_URLS.VALIDATE);
-        if (response.status !== 200) throw new Error(`Error: server response ${response.status}`);
-        const { message, ...userData } = response.data;
-        this.user = userData;
+        if (localStorage.getItem('token')) {
+          const response = await axios.get<User & { message?: string }>(API_URLS.VALIDATE);
+          if (response.status !== 200) throw new Error(`Error: server response ${response.status}`);
+          const {message, ...userData} = response.data;
+          this.user = userData;
+        }
+        else{
+          throw new Error(`Error: no token`)
+        }
       } catch (error: unknown) {
         this.user = null;
 
