@@ -30,7 +30,12 @@
                 </v-list-item>
               </v-list-item-group>
             </v-list>
-            <v-alert v-else type="info">Нет задач</v-alert>
+            <v-alert v-else type="info">
+                  Нет задач
+                  <v-btn href="/task/create" variant="outlined" density="comfortable">
+                    <font-awesome-icon :icon="['fas', 'plus']" />
+                  </v-btn>
+            </v-alert>
           </v-card-text>
         </v-card>
       </v-col>
