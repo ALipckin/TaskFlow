@@ -3,19 +3,30 @@ import { useNotifier } from '@/composables/useNotifier' // Импортируе�
 let socket: WebSocket | null = null
 let onMessageCallback: ((data: Record<string, any>) => void) | null = null
 
-// Используем notify
 export function initSocket(url: string) {
-  const { notify } = useNotifier() // Достаём notify из useNotifier
+  const { notify } = useNotifier()
 
   socket = new WebSocket(url)
+  const token = "Bearer " + localStorage.getItem('token');
 
   socket.onopen = () => {
     console.log('[WebSocket] Connected')
+
+    if (token) {
+      const authMessage = JSON.stringify({
+        type: 'authenticate',
+        token: token,
+      })
+      socket?.send(authMessage)
+      console.log('[WebSocket] Sent auth token')
+    } else {
+      console.warn('[WebSocket] No token found, skipping authentication')
+    }
   }
+
 
   socket.onmessage = (event: MessageEvent) => {
     try {
-      // Правильно парсим строку
       const raw = JSON.parse(event.data)
       console.log('[WebSocket] Parsed message:', raw)
 
