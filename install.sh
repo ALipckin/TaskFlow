@@ -4,11 +4,11 @@ docker network inspect task-network >/dev/null 2>&1 || docker network create tas
 
 (cd ./Backend/TaskRestApiService && docker compose up -d --build)
 
-echo "Waiting start task-rest-api-service..."
-until curl -s http://localhost:5437/health >/dev/null; do
+echo "Waiting for Kafka to become healthy..."
+until [ "$(docker inspect --format='{{.State.Health.Status}}' kafka 2>/dev/null)" == "healthy" ]; do
   sleep 1
 done
-echo "task-rest-api-service запущен!"
+echo "Kafka is started"
 
 (cd ./Backend/AuthService && docker compose up -d --build) &
 (cd ./Backend/TaskStorageService && docker compose up -d --build) &
