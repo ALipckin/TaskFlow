@@ -14,9 +14,9 @@ See [Vite Configuration Reference](https://vite.dev/config/).
 
 ## Project Setup
 
-```sh
-npm install
-```
+Install docker run docker compose up -d --build
+
+Project will be availible at localhost:8081
 
 ### Compile and Hot-Reload for Development
 
