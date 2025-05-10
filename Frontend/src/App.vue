@@ -12,7 +12,12 @@
         <div class="user-menu" v-if="isAuth">
           <font-awesome-icon :icon="['fas', 'user']" @click="toggleMenu" />
           <div class="dropdown" v-if="isMenuOpen">
-            <button @click="logout">Выйти</button>
+            <div class="name" v-if="authStore.user">{{authStore.user.name}}</div>
+            <v-col cols="auto">
+              <v-btn density="comfortable" variant="elevated" @click="logout">
+                Выйти
+              </v-btn>
+            </v-col>
           </div>
         </div>
       </nav>
@@ -69,6 +74,10 @@ const toggleMenu = () => {
 </script>
 
 <style scoped>
+.name{
+    font-weight: bold;
+}
+
 header {
   position: fixed;
   top: 0;

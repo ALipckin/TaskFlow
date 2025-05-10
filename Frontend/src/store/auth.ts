@@ -5,6 +5,7 @@ import type { AxiosError } from 'axios';
 
 interface User {
   id: bigint;
+  name: string;
   email: string;
 }
 
