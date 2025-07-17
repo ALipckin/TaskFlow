@@ -23,6 +23,7 @@ go.work.sum
 go-crud
 # env file
 .env
+*.pos
 
 /.idea
 /.vscode
