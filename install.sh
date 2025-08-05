@@ -2,7 +2,10 @@
 
 docker network inspect task-network >/dev/null 2>&1 || docker network create task-network
 
-(cd ./Backend/TaskRestApiService && docker compose up -d --build)
+git config core.fileMode false
+(  cd ./backend-api/ || exit
+   ./install.sh
+)
 
 echo "Waiting for Kafka to become healthy..."
 until [ "$(docker inspect --format='{{.State.Health.Status}}' kafka 2>/dev/null)" == "healthy" ]; do
