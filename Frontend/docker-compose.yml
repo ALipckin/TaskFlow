@@ -3,11 +3,11 @@ version: '3.8'
 services:
   task-frontend-vue:
     build: .
-    container_name: vue-dev
+    container_name: ${COMPOSE_PROJECT_NAME}-vue-dev
     volumes:
       - .:/app
       - /app/node_modules
     ports:
-      - "8081:5173"
+      - "${FRONT_PORT}:${FRONT_PORT}"
     working_dir: /app
     command: npm run dev -- --host 0.0.0.0
